@@ -1,2 +1,5 @@
 # imagetext
-Get text from images and open any links.
+
+Get text from an image.
+
+Goal: Get text from images and open links within the text.
