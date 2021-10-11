@@ -1,6 +1,8 @@
 import pathlib
 import shutil
 import requests
+import os
+import webbrowser
 from PIL import Image
 from pytesseract import pytesseract
 
@@ -31,4 +33,26 @@ if(location.startswith("http")):
 else:
     file = location
 
-print(getText(file))
+text = getText(file).strip().replace("\n", "")
+
+urls = {"http": [], "https": []}
+
+for i in text.split(" "):
+    if i.startswith("https"):
+        urls["https"].append(i)
+    elif i.startswith("http"):
+        urls["http"].append(i)
+
+print(f'{len(urls["https"]) + len(urls["http"])} URLs found')
+
+for i in urls["https"]:
+    if input(f"Open secure link: {i}?").startswith("y"):
+        webbrowser.open_new_tab(i)
+        print("Opening...")
+
+for i in urls["http"]:
+    if input(f"Open insecure link: {i}?").startswith("y"):
+        webbrowser.open_new_tab(i)
+        print("Opening...")
+
+print(f"Data found:\n{text}")
