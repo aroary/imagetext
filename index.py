@@ -1,7 +1,6 @@
 import pathlib
 import shutil
 import requests
-import os
 import webbrowser
 from PIL import Image
 from pytesseract import pytesseract
