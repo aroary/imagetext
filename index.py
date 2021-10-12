@@ -2,6 +2,7 @@ import pathlib
 import shutil
 import requests
 import os
+import sys
 import webbrowser
 from PIL import Image
 from pytesseract import pytesseract
@@ -25,7 +26,12 @@ def download(url):
         print('Problem getting image')
 
 
-location = input("url or path of image: ")
+location = ""
+if(sys.argv[1]):
+    location = sys.argv[1]
+else:
+    input("url or path of image: ")
+
 file = ""
 if(location.startswith("http")):
     download(location)
