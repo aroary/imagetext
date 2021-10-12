@@ -39,7 +39,7 @@ if(location.startswith("http")):
 else:
     file = location
 
-text = getText(file).strip().replace("\n", "")
+text = getText(file).strip().replace("\n\n", "")
 
 urls = {"http": [], "https": []}
 
@@ -64,3 +64,4 @@ for i in urls["http"]:
 print(f"Data found:\n{text}")
 
 os.remove(file)
+print("Image succesfully undownloaded")
