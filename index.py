@@ -16,6 +16,7 @@ pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 def getText(path):
     return pytesseract.image_to_string(Image.open(path))[:-1]
 
+
 def download(url):
     filename = f"image.{url.split('/')[-1].split('.')[-1].lower()}"
     image = requests.get(url, stream=True)
@@ -31,6 +32,7 @@ def download(url):
 
 def formatText(string):
     return string.strip().replace("\n\n", "")
+
 
 location = ""
 if(len(sys.argv) >= 2):
@@ -57,28 +59,20 @@ else:
 if len(file):
     text = formatText(getText(file))
 
-    urls = {"http": [], "https": []}
-
+    urls = []
     for i in text.split(" "):
         i = i.split("\n")[0]
-        if i.startswith("https"):
-            urls["https"].append(i)
-        elif i.startswith("http"):
-            urls["http"].append(i)
+        if "://" in i:
+            urls.append(i)
 
     print(colorama.Fore.YELLOW +
-          f'{len(urls["https"]) + len(urls["http"])} URLs found')
+          f'{len(urls["https"]) + len(urls)} URLs found')
     colorama.Style.RESET_ALL
 
     queue = []
-    for i in urls["https"]:
-        if input(f"Open secure link: {i}? ").startswith("y"):
+    for i in urls:
+        if input(f"Open link: {i}? ").startswith("y"):
             queue.append(i)
-
-    for i in urls["http"]:
-        if input(f"Open insecure link: {i}? ").startswith("y"):
-            webbrowser.open_new_tab(i)
-            print("Opening...")
 
     if(len(queue)):
         for i in queue:
