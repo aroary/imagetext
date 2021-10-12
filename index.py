@@ -1,18 +1,20 @@
+import sys
+import os
 import pathlib
 import shutil
 import requests
-import os
-import sys
+import colorama
 import webbrowser
 from PIL import Image
 from pytesseract import pytesseract
+
+colorama.init()
 
 pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
 def getText(path):
     return pytesseract.image_to_string(Image.open(path))[:-1]
-
 
 def download(url):
     filename = f"image.{url.split('/')[-1].split('.')[-1].lower()}"
@@ -21,49 +23,75 @@ def download(url):
         image.raw.decode_content = True
         with open(filename, 'wb') as file:
             shutil.copyfileobj(image.raw, file)
-        print('Image successfully downloaded')
+        print(colorama.Fore.GREEN + 'Image successfully downloaded')
     else:
-        print('Problem getting image')
+        print(colorama.Fore.RED + 'Problem getting image')
+    colorama.Style.RESET_ALL
 
+
+def formatText(string):
+    return string.strip().replace("\n\n", "")
 
 location = ""
 if(len(sys.argv) >= 2):
     location = sys.argv[1]
 else:
-    input("url or path of image: ")
+    location = input("url or path of image: ")
+    if len(location) < 1:
+        print(colorama.Fore.YELLOW + "No image selected")
+        colorama.Style.RESET_ALL
 
 file = ""
 if(location.startswith("http")):
-    download(location)
-    file = f'{pathlib.Path(__file__).parent.resolve()}\image.{location.split("/")[-1].split(".")[-1].lower()}'
+    try:
+        download(location)
+        file = f'{pathlib.Path(__file__).parent.resolve()}\image.{location.split("/")[-1].split(".")[-1].lower()}'
+    except:
+        print(colorama.Fore.RED + 'Problem getting image')
+        colorama.Style.RESET_ALL
+elif len(location) < 1:
+    sys.exit()
 else:
     file = location
 
-text = getText(file).strip().replace("\n\n", "")
+if len(file):
+    text = formatText(getText(file))
 
-urls = {"http": [], "https": []}
+    urls = {"http": [], "https": []}
 
-for i in text.split(" "):
-    i = i.split("\n")[0]
-    if i.startswith("https"):
-        urls["https"].append(i)
-    elif i.startswith("http"):
-        urls["http"].append(i)
+    for i in text.split(" "):
+        i = i.split("\n")[0]
+        if i.startswith("https"):
+            urls["https"].append(i)
+        elif i.startswith("http"):
+            urls["http"].append(i)
 
-print(f'{len(urls["https"]) + len(urls["http"])} URLs found')
+    print(colorama.Fore.YELLOW +
+          f'{len(urls["https"]) + len(urls["http"])} URLs found')
+    colorama.Style.RESET_ALL
 
-for i in urls["https"]:
-    if input(f"Open secure link: {i}? ").startswith("y"):
-        webbrowser.open_new_tab(i)
-        print("Opening...")
+    queue = []
+    for i in urls["https"]:
+        if input(f"Open secure link: {i}? ").startswith("y"):
+            queue.append(i)
 
-for i in urls["http"]:
-    if input(f"Open insecure link: {i}? ").startswith("y"):
-        webbrowser.open_new_tab(i)
-        print("Opening...")
+    for i in urls["http"]:
+        if input(f"Open insecure link: {i}? ").startswith("y"):
+            webbrowser.open_new_tab(i)
+            print("Opening...")
 
-print(f"Data found:\n{text}")
+    if(len(queue)):
+        for i in queue:
+            print(f"Opening {len(queue)} links...")
+            webbrowser.open_new_tab(i)
+
+    print(f"Data found:\n{text}")
+else:
+    print(colorama.Fore.YELLOW + "No text found")
+    colorama.Style.RESET_ALL
 
 if(os.path.exists(file)):
     os.remove(file)
     print("Image succesfully undownloaded")
+
+colorama.Style.RESET_ALL
