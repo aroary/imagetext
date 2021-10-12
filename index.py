@@ -27,7 +27,7 @@ def download(url):
 
 
 location = ""
-if(sys.argv[1]):
+if(len(sys.argv) >= 2):
     location = sys.argv[1]
 else:
     input("url or path of image: ")
@@ -44,6 +44,7 @@ text = getText(file).strip().replace("\n\n", "")
 urls = {"http": [], "https": []}
 
 for i in text.split(" "):
+    i = i.split("\n")[0]
     if i.startswith("https"):
         urls["https"].append(i)
     elif i.startswith("http"):
@@ -52,16 +53,17 @@ for i in text.split(" "):
 print(f'{len(urls["https"]) + len(urls["http"])} URLs found')
 
 for i in urls["https"]:
-    if input(f"Open secure link: {i}?").startswith("y"):
+    if input(f"Open secure link: {i}? ").startswith("y"):
         webbrowser.open_new_tab(i)
         print("Opening...")
 
 for i in urls["http"]:
-    if input(f"Open insecure link: {i}?").startswith("y"):
+    if input(f"Open insecure link: {i}? ").startswith("y"):
         webbrowser.open_new_tab(i)
         print("Opening...")
 
 print(f"Data found:\n{text}")
 
-os.remove(file)
-print("Image succesfully undownloaded")
+if(os.path.exists(file)):
+    os.remove(file)
+    print("Image succesfully undownloaded")
